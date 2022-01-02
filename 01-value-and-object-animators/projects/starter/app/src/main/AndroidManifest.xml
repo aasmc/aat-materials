@@ -12,8 +12,11 @@
     android:supportsRtl="true"
     android:theme="@style/Theme.Cinematic">
     <activity
+        android:exported="true"
       android:name="com.raywenderlich.cinematic.login.AuthActivity"
-      android:windowSoftInputMode="adjustResize" />
+      android:windowSoftInputMode="adjustResize">
+
+    </activity>
     <activity
       android:name="com.raywenderlich.cinematic.MainActivity"
       android:exported="true">

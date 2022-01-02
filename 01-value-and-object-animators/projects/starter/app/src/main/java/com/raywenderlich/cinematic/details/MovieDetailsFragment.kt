@@ -33,6 +33,7 @@
  */
 package com.raywenderlich.cinematic.details
 
+import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -137,7 +138,7 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_details) {
         binding.posterContainer.isVisible = true
         binding.poster.setImageDrawable(it)
         if (viewModel.shouldAnimate) {
-          //TODO animate poster
+          animatePoster()
         }
       }.build()
     requireContext().imageLoader.enqueue(posterRequest)
@@ -156,4 +157,35 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_details) {
       }.build()
     requireContext().imageLoader.enqueue(posterRequest)
   }
+
+  private fun animatePoster() {
+    binding.posterContainer.alpha = 0f
+    val animator = ValueAnimator.ofFloat(0f, 1f).apply {
+      duration = 1000
+      addUpdateListener { valueAnimator ->
+        val animatedValue = valueAnimator.animatedValue as Float
+        binding.posterContainer.alpha = animatedValue
+      }
+    }
+    animator.start()
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
