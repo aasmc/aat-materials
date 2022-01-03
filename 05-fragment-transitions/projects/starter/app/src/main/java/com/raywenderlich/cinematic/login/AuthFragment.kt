@@ -34,12 +34,16 @@
 package com.raywenderlich.cinematic.login
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.transition.Slide
+import androidx.transition.TransitionSet
 import com.google.android.material.transition.MaterialSharedAxis
+import com.raywenderlich.cinematic.R
 import com.raywenderlich.cinematic.databinding.FragmentAuthBinding
 
 class AuthFragment : Fragment() {
@@ -50,9 +54,22 @@ class AuthFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        exitTransition = MaterialSharedAxis(MaterialSharedAxis.X, true).apply {
+        val materialSlideOut = MaterialSharedAxis(MaterialSharedAxis.X, true).apply {
             duration = 1000
+            excludeTarget(R.id.logo, true)
         }
+        val logoSlideUp = Slide(Gravity.TOP).apply {
+            duration = 700
+            addTarget(R.id.logo)
+        }
+        val exitTransitionSet = TransitionSet().apply {
+            addTransition(materialSlideOut)
+            addTransition(logoSlideUp)
+            ordering = TransitionSet.ORDERING_TOGETHER
+        }
+
+        exitTransition = exitTransitionSet
+
         reenterTransition = MaterialSharedAxis(MaterialSharedAxis.X, false)
     }
 
