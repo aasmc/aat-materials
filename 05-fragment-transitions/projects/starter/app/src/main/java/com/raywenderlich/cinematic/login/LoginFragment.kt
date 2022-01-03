@@ -34,42 +34,62 @@
 package com.raywenderlich.cinematic.login
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.transition.Slide
+import com.google.android.material.transition.MaterialSharedAxis
+import com.raywenderlich.cinematic.R
 import com.raywenderlich.cinematic.databinding.FragmentLoginBinding
 
 class LoginFragment : Fragment() {
-  private val viewModel by activityViewModels<AuthViewModel>()
+    private val viewModel by activityViewModels<AuthViewModel>()
 
-  private var _binding: FragmentLoginBinding? = null
-  private val binding get() = _binding!!
+    private var _binding: FragmentLoginBinding? = null
+    private val binding get() = _binding!!
 
-  override fun onCreateView(
-      inflater: LayoutInflater, container: ViewGroup?,
-      savedInstanceState: Bundle?
-  ): View {
-    // Inflate the layout for this fragment
-    _binding = FragmentLoginBinding.inflate(inflater)
-    return binding.root
-  }
-
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    binding.loginButton.setOnClickListener {
-      viewModel.onLoginPressed()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enterTransition = Slide(Gravity.TOP).apply {
+            duration = 700
+            addTarget(R.id.login_logo)
+        }
+        returnTransition = MaterialSharedAxis(MaterialSharedAxis.X, false).apply {
+            duration = 1000
+        }
     }
-  }
 
-  override fun onDestroyView() {
-    super.onDestroyView()
-    _binding = null
-  }
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        // Inflate the layout for this fragment
+        _binding = FragmentLoginBinding.inflate(inflater)
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner) {
+            binding.root.isTransitionGroup = false
+            parentFragmentManager.popBackStack()
+        }
+        return binding.root
+    }
 
-  companion object {
-    @JvmStatic
-    fun newInstance() = LoginFragment()
-  }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.loginButton.setOnClickListener {
+            viewModel.onLoginPressed()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    companion object {
+        @JvmStatic
+        fun newInstance() = LoginFragment()
+    }
 }

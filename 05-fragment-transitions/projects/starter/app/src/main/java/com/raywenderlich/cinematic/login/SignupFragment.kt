@@ -66,6 +66,10 @@ class SignupFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentSignupBinding.inflate(inflater)
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner) {
+            binding.root.isTransitionGroup = false
+            parentFragmentManager.popBackStack()
+        }
         return binding.root
     }
 
@@ -73,10 +77,6 @@ class SignupFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.signUpButton.setOnClickListener {
             viewModel.onSignupPressed()
-        }
-        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner) {
-            binding.root.isTransitionGroup = false
-            parentFragmentManager.popBackStack()
         }
     }
 
