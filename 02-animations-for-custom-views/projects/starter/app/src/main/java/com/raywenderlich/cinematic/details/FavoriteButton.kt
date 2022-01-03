@@ -126,6 +126,7 @@ class FavoriteButton @JvmOverloads constructor(
             interpolator = OvershootInterpolator()
             addUpdateListener {
                 binding.favoriteButton.textSize =
+                    // divide by screen density to convert to sp
                     (it.animatedValue as Float) / resources.displayMetrics.density
             }
         }
