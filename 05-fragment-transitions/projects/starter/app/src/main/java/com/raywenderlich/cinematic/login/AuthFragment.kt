@@ -39,6 +39,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.transition.Fade
 import com.raywenderlich.cinematic.databinding.FragmentAuthBinding
 
 class AuthFragment : Fragment() {
@@ -46,6 +47,11 @@ class AuthFragment : Fragment() {
 
   private var _binding: FragmentAuthBinding? = null
   private val binding get() = _binding!!
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    exitTransition = Fade()
+  }
 
   override fun onCreateView(
       inflater: LayoutInflater, container: ViewGroup?,
