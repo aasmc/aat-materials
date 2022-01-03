@@ -39,46 +39,49 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.transition.Fade
+import com.google.android.material.transition.MaterialSharedAxis
 import com.raywenderlich.cinematic.databinding.FragmentAuthBinding
 
 class AuthFragment : Fragment() {
-  private val viewModel by activityViewModels<AuthViewModel>()
+    private val viewModel by activityViewModels<AuthViewModel>()
 
-  private var _binding: FragmentAuthBinding? = null
-  private val binding get() = _binding!!
+    private var _binding: FragmentAuthBinding? = null
+    private val binding get() = _binding!!
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    exitTransition = Fade()
-  }
-
-  override fun onCreateView(
-      inflater: LayoutInflater, container: ViewGroup?,
-      savedInstanceState: Bundle?
-  ): View {
-    // Inflate the layout for this fragment
-    _binding = FragmentAuthBinding.inflate(inflater)
-    return binding.root
-  }
-
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    binding.signIn.setOnClickListener {
-      viewModel.onSignInPressed()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        exitTransition = MaterialSharedAxis(MaterialSharedAxis.X, true).apply {
+            duration = 1000
+        }
+        reenterTransition = MaterialSharedAxis(MaterialSharedAxis.X, false)
     }
-    binding.newSignUp.setOnClickListener {
-      viewModel.onNewUserPressed()
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        // Inflate the layout for this fragment
+        _binding = FragmentAuthBinding.inflate(inflater)
+        return binding.root
     }
-  }
 
-  override fun onDestroyView() {
-    super.onDestroyView()
-    _binding = null
-  }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.signIn.setOnClickListener {
+            viewModel.onSignInPressed()
+        }
+        binding.newSignUp.setOnClickListener {
+            viewModel.onNewUserPressed()
+        }
+    }
 
-  companion object {
-    @JvmStatic
-    fun newInstance() = AuthFragment()
-  }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    companion object {
+        @JvmStatic
+        fun newInstance() = AuthFragment()
+    }
 }
