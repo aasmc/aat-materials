@@ -38,6 +38,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.OvershootInterpolator
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -162,9 +164,12 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_details) {
     binding.posterContainer.alpha = 0f
     val animator = ValueAnimator.ofFloat(0f, 1f).apply {
       duration = 1000
+      interpolator = AccelerateDecelerateInterpolator()
       addUpdateListener { valueAnimator ->
         val animatedValue = valueAnimator.animatedValue as Float
         binding.posterContainer.alpha = animatedValue
+        binding.posterContainer.scaleX = animatedValue
+        binding.posterContainer.scaleY = animatedValue
       }
     }
     animator.start()
