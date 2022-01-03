@@ -33,8 +33,11 @@
  */
 package com.raywenderlich.cinematic.details
 
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.imageLoader
@@ -47,29 +50,42 @@ import com.raywenderlich.cinematic.util.Constants.IMAGE_BASE
 
 class CastAdapter : ListAdapter<Cast, CastAdapter.CastViewHolder>(CastDiffCallback()) {
 
-  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CastViewHolder {
-    val binding = ItemCastBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-    return CastViewHolder(binding)
-  }
-
-  override fun onBindViewHolder(holder: CastViewHolder, position: Int) {
-    holder.bind(getItem(position))
-  }
-
-  inner class CastViewHolder(val binding: ItemCastBinding) :
-    RecyclerView.ViewHolder(binding.root) {
-    fun bind(cast: Cast) {
-      val context = binding.root.context
-
-      val imageRequest = ImageRequest.Builder(context)
-        .data(IMAGE_BASE + cast.profilePath)
-        .transformations(CircleCropTransformation())
-        .target {
-          binding.castImage.setImageDrawable(it)
-        }.build()
-
-      context.imageLoader.enqueue(imageRequest)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CastViewHolder {
+        val binding = ItemCastBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return CastViewHolder(binding)
     }
 
-  }
+    override fun onBindViewHolder(holder: CastViewHolder, position: Int) {
+        holder.bind(getItem(position))
+    }
+
+    inner class CastViewHolder(val binding: ItemCastBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(cast: Cast) {
+            val context = binding.root.context
+
+            val imageRequest = ImageRequest.Builder(context)
+                .data(IMAGE_BASE + cast.profilePath)
+                .transformations(CircleCropTransformation())
+                .target {
+                    binding.castImage.setImageDrawable(it)
+                    animateCastsImage()
+                }.build()
+
+            context.imageLoader.enqueue(imageRequest)
+        }
+
+        private fun animateCastsImage() {
+            binding.castImage.alpha = 0f
+            val animator = ValueAnimator.ofFloat(0f, 1f).apply {
+                duration = 1000
+                interpolator = AccelerateDecelerateInterpolator()
+                addUpdateListener { valueAnimator ->
+                    val animatedValue = valueAnimator.animatedValue as Float
+                    binding.castImage.alpha = animatedValue
+                }
+            }
+            animator.start()
+        }
+    }
 }
