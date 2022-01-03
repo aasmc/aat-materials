@@ -34,6 +34,8 @@
 package com.raywenderlich.cinematic.details
 
 import android.animation.AnimatorInflater
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -165,20 +167,39 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_details) {
     private fun animatePoster() {
         val animation = AnimatorInflater.loadAnimator(
             requireContext(),
-            R.animator.poster_animaion,
-        ) as ValueAnimator
+            R.animator.poster_animator_set
+        ) as AnimatorSet
         animation.apply {
-            addUpdateListener { animation ->
-                val animatedValue = animation.animatedValue as Float
-                binding.posterContainer.alpha = animatedValue
-                binding.posterContainer.scaleX = animatedValue
-                binding.posterContainer.scaleY = animatedValue
-            }
+            setTarget(binding.posterContainer)
             start()
         }
     }
 
     private fun animateText() {
-        //TODO animate summary text
+        val textAnimator = AnimatorInflater.loadAnimator(
+            requireContext(),
+            R.animator.text_animation
+        ) as ObjectAnimator
+        textAnimator.apply {
+            target = binding.summary
+            start()
+        }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
