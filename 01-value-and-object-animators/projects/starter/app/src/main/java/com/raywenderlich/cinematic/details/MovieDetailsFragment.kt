@@ -41,7 +41,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
-import android.view.animation.OvershootInterpolator
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -113,6 +112,8 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_details) {
         if (viewModel.shouldAnimate) {
             animateText()
         }
+
+        animateTitle()
 
         binding.addToFavorites.apply {
             icon = if (movie.isFavorite) {
@@ -204,6 +205,32 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_details) {
             duration = 1000
         }
         objectAnimator.start()
+    }
+
+    private fun animateTitle() {
+        val finalYPosition = binding.title.y
+        val startYPosition = binding.title.y + binding.title.height
+        binding.title.y = startYPosition
+        binding.title.alpha = 0f
+        val positionAnimator = ValueAnimator.ofFloat(startYPosition, finalYPosition).apply {
+            duration = 1000
+            interpolator = AccelerateDecelerateInterpolator()
+            addUpdateListener { valueAnimator ->
+                val animatedValue = valueAnimator.animatedValue as Float
+                binding.title.y = animatedValue
+            }
+        }
+        val alphaAnimator = ObjectAnimator.ofFloat(
+            binding.title,
+            "alpha",
+            0f,
+            1f
+        ).apply {
+            duration = 1000
+            interpolator = AccelerateDecelerateInterpolator()
+        }
+        positionAnimator.start()
+        alphaAnimator.start()
     }
 }
 
