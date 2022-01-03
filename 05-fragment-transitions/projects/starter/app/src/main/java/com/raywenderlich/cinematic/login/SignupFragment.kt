@@ -41,7 +41,9 @@ import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.transition.Fade
 import androidx.transition.Slide
+import androidx.transition.TransitionSet
 import com.google.android.material.transition.MaterialSharedAxis
 import com.raywenderlich.cinematic.R
 import com.raywenderlich.cinematic.databinding.FragmentSignupBinding
@@ -57,7 +59,17 @@ class SignupFragment : Fragment() {
         returnTransition = MaterialSharedAxis(MaterialSharedAxis.X, false).apply {
             duration = 1000
         }
-        enterTransition = Slide(Gravity.TOP).addTarget(R.id.signup_logo).setDuration(700)
+        val logoSlideUp = Slide(Gravity.TOP).addTarget(R.id.signup_logo).setDuration(1000)
+        val logoFade = Fade().apply {
+            addTarget(R.id.signup_logo)
+            duration = 2000
+        }
+        val enterTransitionSet = TransitionSet().apply {
+            addTransition(logoSlideUp)
+            addTransition(logoFade)
+            ordering = TransitionSet.ORDERING_TOGETHER
+        }
+        enterTransition = enterTransitionSet
     }
 
     override fun onCreateView(

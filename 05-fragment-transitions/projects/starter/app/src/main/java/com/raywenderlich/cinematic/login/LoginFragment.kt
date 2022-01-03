@@ -41,7 +41,9 @@ import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.transition.Fade
 import androidx.transition.Slide
+import androidx.transition.TransitionSet
 import com.google.android.material.transition.MaterialSharedAxis
 import com.raywenderlich.cinematic.R
 import com.raywenderlich.cinematic.databinding.FragmentLoginBinding
@@ -54,10 +56,23 @@ class LoginFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enterTransition = Slide(Gravity.TOP).apply {
-            duration = 700
+        val logoSlideUp = Slide(Gravity.TOP).apply {
+            duration = 1000
             addTarget(R.id.login_logo)
         }
+
+        val logoFade = Fade().apply {
+            addTarget(R.id.login_logo)
+            duration = 2000
+        }
+
+        val logoTransitionSet = TransitionSet().apply {
+            addTransition(logoSlideUp)
+            addTransition(logoFade)
+            ordering = TransitionSet.ORDERING_TOGETHER
+        }
+
+        enterTransition = logoTransitionSet
         returnTransition = MaterialSharedAxis(MaterialSharedAxis.X, false).apply {
             duration = 1000
         }
