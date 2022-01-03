@@ -37,7 +37,7 @@ import java.text.DecimalFormat
 import java.util.*
 
 fun Float.convertToFiveStarScale(): Float {
-  val decimalFormat = DecimalFormat("#.#")
+  val decimalFormat = DecimalFormat("#,#")
   return decimalFormat.format(this / 2).toFloat()
 }
 
