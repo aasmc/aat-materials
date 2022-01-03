@@ -1,12 +1,17 @@
 package com.raywenderlich.cinematic.details
 
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.animation.OvershootInterpolator
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.animation.doOnEnd
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import com.raywenderlich.cinematic.R
 import com.raywenderlich.cinematic.databinding.ViewFavoriteButtonBinding
 import com.raywenderlich.cinematic.util.DisplayMetricsUtil
@@ -18,6 +23,8 @@ class FavoriteButton @JvmOverloads constructor(
 
     private val binding: ViewFavoriteButtonBinding =
         ViewFavoriteButtonBinding.inflate(LayoutInflater.from(context), this)
+
+    private val animators = mutableListOf<ValueAnimator>()
 
     init {
         layoutParams = LayoutParams(
@@ -66,7 +73,7 @@ class FavoriteButton @JvmOverloads constructor(
 
         }
 
-        //TODO animate button
+        animateButton()
     }
 
 
@@ -78,7 +85,87 @@ class FavoriteButton @JvmOverloads constructor(
             isFocusable = true
         }
 
-        //TODO reverse the animations
+        reverseAnimations()
+    }
+
+    private fun animateButton() {
+        val initialWidth = binding.favoriteButton.measuredWidth
+        val finalWidth = binding.favoriteButton.measuredHeight
+
+        val initialTextSize = binding.favoriteButton.textSize
+
+        val widthAnimator = ValueAnimator.ofInt(
+            initialWidth,
+            finalWidth
+        ).apply {
+            duration = 1000
+            addUpdateListener { valueAnimator ->
+                binding.favoriteButton.updateLayoutParams {
+                    this.width = valueAnimator.animatedValue as Int
+                }
+            }
+        }
+        val alphaAnimator = ObjectAnimator.ofFloat(
+            binding.progressBar,
+            "alpha",
+            0f,
+            1f
+        ).apply {
+            duration = 1000
+        }
+
+        binding.progressBar.apply {
+            alpha = 0f
+            isVisible = true
+        }
+        val textSizeAnimator = ValueAnimator.ofFloat(
+            initialTextSize,
+            0f
+        ).apply {
+            duration = 1000
+            interpolator = OvershootInterpolator()
+            addUpdateListener {
+                binding.favoriteButton.textSize =
+                    (it.animatedValue as Float) / resources.displayMetrics.density
+            }
+        }
+
+        animators.addAll(listOf(widthAnimator, alphaAnimator, textSizeAnimator))
+        alphaAnimator.start()
+        widthAnimator.start()
+        textSizeAnimator.start()
+    }
+
+    private fun reverseAnimations() {
+        animators.forEach { animation ->
+            animation.reverse()
+            if (animators.indexOf(animation) == animators.lastIndex) {
+                animation.doOnEnd {
+                    animators.clear()
+                }
+            }
+        }
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
