@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layoutAnimation xmlns:android="http://schemas.android.com/apk/res/android"
-    android:animation="@anim/vertical_translation_item_animation"
+    android:animation="@anim/rotation_animation"
     android:animationOrder="normal" />
