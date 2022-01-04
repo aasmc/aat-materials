@@ -33,6 +33,7 @@
  */
 package com.raywenderlich.cinematic.popular
 
+import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -55,68 +56,100 @@ import org.koin.android.viewmodel.ext.android.sharedViewModel
 import kotlin.math.hypot
 
 class PopularMoviesFragment : Fragment(R.layout.fragment_popular) {
-  private var _binding: FragmentPopularBinding? = null
-  private val binding get() = _binding!!
+    private var _binding: FragmentPopularBinding? = null
+    private val binding get() = _binding!!
 
-  private val viewModel: PopularMoviesViewModel by inject()
-  private val animationViewModel: AnimationViewModel by sharedViewModel()
-  private val popularAdapter: MoviesAdapter by inject()
+    private val viewModel: PopularMoviesViewModel by inject()
+    private val animationViewModel: AnimationViewModel by sharedViewModel()
+    private val popularAdapter: MoviesAdapter by inject()
 
-  override fun onCreateView(
-      inflater: LayoutInflater,
-      container: ViewGroup?,
-      savedInstanceState: Bundle?,
-  ): View {
-    _binding = FragmentPopularBinding.inflate(inflater, container, false)
-    return binding.root
-  }
-
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    popularAdapter.setListener(object : MovieListClickListener {
-      override fun onMovieClicked(movie: Movie) {
-        findNavController().navigate(
-            PopularMoviesFragmentDirections.actionPopularMoviesFragmentToMovieDetailsFragment(movie.id))
-      }
-
-    })
-    binding.popularMoviesList.apply {
-      adapter = popularAdapter
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        _binding = FragmentPopularBinding.inflate(inflater, container, false)
+        return binding.root
     }
-    viewModel.getPopularMovies()
-    attachObservers()
-  }
 
-  private fun attachObservers() {
-    viewModel.movies.observe(viewLifecycleOwner, { movies ->
-      popularAdapter.submitList(movies)
-    })
-    animationViewModel.animatePopularEntranceLiveData.observe(viewLifecycleOwner, { shouldAnimate ->
-      if (shouldAnimate) {
-        animateContentIn()
-      }
-    })
-    viewModel.events.observe(viewLifecycleOwner, { event ->
-      when (event) {
-        is Loading -> {
-          binding.progressBar.visibility = View.VISIBLE
-          binding.popularMoviesList.visibility = View.GONE
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        popularAdapter.setListener(object : MovieListClickListener {
+            override fun onMovieClicked(movie: Movie) {
+                findNavController().navigate(
+                    PopularMoviesFragmentDirections.actionPopularMoviesFragmentToMovieDetailsFragment(
+                        movie.id
+                    )
+                )
+            }
+
+        })
+        binding.popularMoviesList.apply {
+            adapter = popularAdapter
         }
+        viewModel.getPopularMovies()
+        attachObservers()
+    }
 
-        is Done -> {
-          binding.progressBar.visibility = View.GONE
-          binding.popularMoviesList.visibility = View.VISIBLE
+    private fun attachObservers() {
+        viewModel.movies.observe(viewLifecycleOwner, { movies ->
+            popularAdapter.submitList(movies)
+        })
+        animationViewModel.animatePopularEntranceLiveData.observe(
+            viewLifecycleOwner,
+            { shouldAnimate ->
+                if (shouldAnimate) {
+                    animateContentIn()
+                }
+            })
+        viewModel.events.observe(viewLifecycleOwner, { event ->
+            when (event) {
+                is Loading -> {
+                    binding.progressBar.visibility = View.VISIBLE
+                    binding.popularMoviesList.visibility = View.GONE
+                }
+
+                is Done -> {
+                    binding.progressBar.visibility = View.GONE
+                    binding.popularMoviesList.visibility = View.VISIBLE
+                }
+            }
+        })
+    }
+
+    private fun animateContentIn() {
+        binding.root.doOnPreDraw {
+            val view = binding.root
+            val centerX = 0
+            val centerY = view.height
+            val finalRadius = hypot(view.width.toDouble(), view.height.toDouble())
+            val anim = ViewAnimationUtils
+                .createCircularReveal(view, centerX, centerY, 0f, finalRadius.toFloat()).apply {
+                    duration = 600
+                    start()
+                }
         }
-      }
-    })
-  }
+    }
 
-  private fun animateContentIn() {
-    // TODO: Animate content in!
-  }
-
-  override fun onDestroyView() {
-    super.onDestroyView()
-    _binding = null
-  }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
