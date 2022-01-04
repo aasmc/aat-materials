@@ -63,8 +63,10 @@ class MoviesAdapter : ListAdapter<Movie, MoviesAdapter.MoviesViewHolder>(MoviesD
 
   inner class MoviesViewHolder(val binding: ItemMovieBinding) :
     RecyclerView.ViewHolder(binding.root) {
+    var movie: Movie? = null
 
     fun bind(movie: Movie) {
+      this.movie = movie
       binding.movieName.text = movie.title
       binding.movieRating.rating = movie.rating
       binding.ratingValue.text = movie.rating.toString()

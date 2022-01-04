@@ -39,12 +39,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import com.raywenderlich.cinematic.MoviesAdapter
 import com.raywenderlich.cinematic.R
+import com.raywenderlich.cinematic.data.repository.MoviesRepository
 import com.raywenderlich.cinematic.databinding.FragmentFavoritesBinding
 import com.raywenderlich.cinematic.model.Movie
 import com.raywenderlich.cinematic.util.Events
 import com.raywenderlich.cinematic.util.MovieListClickListener
+import com.raywenderlich.cinematic.util.MyItemTouchHelperCallback
 import org.koin.android.ext.android.inject
 
 class FavoriteMoviesFragment : Fragment(R.layout.fragment_favorites) {
@@ -53,6 +56,7 @@ class FavoriteMoviesFragment : Fragment(R.layout.fragment_favorites) {
 
     private val viewModel: FavoriteMoviesViewModel by inject()
     private val favoritesAdapter: MoviesAdapter by inject()
+    private val moviesRepository: MoviesRepository by inject()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -77,6 +81,12 @@ class FavoriteMoviesFragment : Fragment(R.layout.fragment_favorites) {
         })
         binding.favoriteMoviesList.apply {
             adapter = favoritesAdapter
+            val itemTouchCallback = MyItemTouchHelperCallback(
+                moviesRepository,
+                viewLifecycleOwner
+            )
+            val itemTouchHelper = ItemTouchHelper(itemTouchCallback)
+            itemTouchHelper.attachToRecyclerView(this)
         }
         viewModel.getFavoriteMovies()
         attachObservers()
