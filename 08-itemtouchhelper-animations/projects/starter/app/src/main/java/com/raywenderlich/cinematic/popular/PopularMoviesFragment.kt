@@ -40,6 +40,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
+import com.google.android.material.snackbar.Snackbar
 import com.raywenderlich.cinematic.MoviesAdapter
 import com.raywenderlich.cinematic.MoviesRecyclerAdapter
 import com.raywenderlich.cinematic.R
@@ -87,7 +88,14 @@ class PopularMoviesFragment : Fragment(R.layout.fragment_popular) {
             val itemTouchCallback = MyItemTouchHelperCallback(
                 moviesRepository,
                 viewLifecycleOwner
-            )
+            ) { setToFav ->
+                val text = if (setToFav) {
+                    "Successfully added the movie to favourites!"
+                } else {
+                    "Removed the moview from favourites!"
+                }
+                Snackbar.make(binding.root, text, Snackbar.LENGTH_SHORT).show()
+            }
             val itemTouchHelper = ItemTouchHelper(itemTouchCallback)
             itemTouchHelper.attachToRecyclerView(this)
         }
