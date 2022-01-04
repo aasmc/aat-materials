@@ -41,6 +41,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.raywenderlich.cinematic.MoviesAdapter
+import com.raywenderlich.cinematic.MoviesRecyclerAdapter
 import com.raywenderlich.cinematic.R
 import com.raywenderlich.cinematic.data.repository.MoviesRepository
 import com.raywenderlich.cinematic.databinding.FragmentPopularBinding
@@ -56,7 +57,7 @@ class PopularMoviesFragment : Fragment(R.layout.fragment_popular) {
     private val binding get() = _binding!!
 
     private val viewModel: PopularMoviesViewModel by inject()
-    private val popularAdapter: MoviesAdapter by inject()
+    private val popularAdapter = MoviesRecyclerAdapter()
     private val moviesRepository: MoviesRepository by inject()
 
     override fun onCreateView(
@@ -98,7 +99,7 @@ class PopularMoviesFragment : Fragment(R.layout.fragment_popular) {
 
     private fun attachObservers() {
         viewModel.movies.observe(viewLifecycleOwner, { movies ->
-            popularAdapter.submitList(movies)
+            popularAdapter.setItems(movies)
         })
 
         viewModel.events.observe(viewLifecycleOwner, { event ->

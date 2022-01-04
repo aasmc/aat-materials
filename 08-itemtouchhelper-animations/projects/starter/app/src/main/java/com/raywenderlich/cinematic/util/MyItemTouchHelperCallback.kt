@@ -5,6 +5,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.raywenderlich.cinematic.MoviesAdapter
+import com.raywenderlich.cinematic.MoviesRecyclerAdapter
 import com.raywenderlich.cinematic.data.repository.MoviesRepository
 import kotlinx.coroutines.launch
 
@@ -27,7 +28,9 @@ class MyItemTouchHelperCallback(
         viewHolder: RecyclerView.ViewHolder,
         target: RecyclerView.ViewHolder
     ): Boolean {
-        return false
+        val adapter = recyclerView.adapter as? MoviesRecyclerAdapter
+        adapter?.onItemMoved(viewHolder.bindingAdapterPosition, target.bindingAdapterPosition)
+        return adapter != null
     }
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
