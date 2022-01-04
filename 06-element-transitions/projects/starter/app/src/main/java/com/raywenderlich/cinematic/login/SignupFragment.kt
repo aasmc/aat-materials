@@ -39,45 +39,58 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.transition.ChangeBounds
+import androidx.transition.ChangeTransform
+import androidx.transition.TransitionSet
 import com.google.android.material.transition.MaterialSharedAxis
+import com.raywenderlich.cinematic.TextSizeTransition
 import com.raywenderlich.cinematic.databinding.FragmentSignupBinding
 
 class SignupFragment : Fragment() {
-  private val viewModel by activityViewModels<AuthViewModel>()
+    private val viewModel by activityViewModels<AuthViewModel>()
 
-  private var _binding: FragmentSignupBinding? = null
-  private val binding get() = _binding!!
+    private var _binding: FragmentSignupBinding? = null
+    private val binding get() = _binding!!
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    returnTransition = MaterialSharedAxis(MaterialSharedAxis.X, false).apply {
-      duration = 1000
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        returnTransition = MaterialSharedAxis(MaterialSharedAxis.X, false).apply {
+            duration = 1000
+        }
+
+        val set = TransitionSet()
+        val changeBounds = ChangeBounds()
+        set.addTransition(changeBounds)
+        val changTransform = ChangeTransform()
+        set.addTransition(changTransform)
+        val textSize = TextSizeTransition()
+        set.addTransition(textSize)
+        sharedElementEnterTransition = set
     }
-  }
 
-  override fun onCreateView(
-      inflater: LayoutInflater, container: ViewGroup?,
-      savedInstanceState: Bundle?
-  ): View {
-    // Inflate the layout for this fragment
-    _binding = FragmentSignupBinding.inflate(inflater)
-    return binding.root
-  }
-
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    binding.signUpButton.setOnClickListener {
-      viewModel.onSignupPressed()
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        // Inflate the layout for this fragment
+        _binding = FragmentSignupBinding.inflate(inflater)
+        return binding.root
     }
-  }
 
-  override fun onDestroyView() {
-    super.onDestroyView()
-    _binding = null
-  }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.signUpButton.setOnClickListener {
+            viewModel.onSignupPressed()
+        }
+    }
 
-  companion object {
-    @JvmStatic
-    fun newInstance() = SignupFragment()
-  }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    companion object {
+        @JvmStatic
+        fun newInstance() = SignupFragment()
+    }
 }

@@ -34,27 +34,67 @@
 package com.raywenderlich.cinematic
 
 import android.animation.Animator
+import android.animation.ValueAnimator
+import android.util.TypedValue
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.transition.Transition
 import androidx.transition.TransitionValues
 
 class TextSizeTransition : Transition() {
 
-  override fun captureStartValues(transitionValues: TransitionValues) {
-  }
+    override fun captureStartValues(transitionValues: TransitionValues) {
+        captureTextSize(transitionValues)
+    }
 
-  override fun captureEndValues(transitionValues: TransitionValues) {
-  }
+    override fun captureEndValues(transitionValues: TransitionValues) {
+        captureTextSize(transitionValues)
+    }
 
-  override fun createAnimator(
-    sceneRoot: ViewGroup,
-    startValues: TransitionValues?,
-    endValues: TransitionValues?
-  ): Animator? {
-    return null
-  }
+    private fun captureTextSize(transitionValues: TransitionValues) {
+        (transitionValues.view as? TextView)?.let { textView ->
+            transitionValues.values[TextSizeTransition.textSizeProp] = textView.textSize
+        }
+    }
 
-  companion object {
-    private const val textSizeProp = "transition:textsize"
-  }
+    override fun createAnimator(
+        sceneRoot: ViewGroup,
+        startValues: TransitionValues?,
+        endValues: TransitionValues?
+    ): Animator? {
+        if (startValues == null || endValues == null) {
+            return null
+        }
+        val startSize = startValues.values[textSizeProp] as Float
+        val endSize = endValues.values[textSizeProp] as Float
+        val view = endValues.view as TextView
+
+        return ValueAnimator.ofFloat(startSize, endSize).apply {
+            addUpdateListener {
+                view.setTextSize(TypedValue.COMPLEX_UNIT_PX, it.animatedValue as Float)
+            }
+        }
+    }
+
+    companion object {
+        private const val textSizeProp = "transition:textsize"
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

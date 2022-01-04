@@ -35,6 +35,7 @@ package com.raywenderlich.cinematic.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
@@ -43,39 +44,43 @@ import com.raywenderlich.cinematic.R
 import com.raywenderlich.cinematic.databinding.ActivityAuthBinding
 
 class AuthActivity : AppCompatActivity() {
-  private val viewModel by viewModels<AuthViewModel>()
+    private val viewModel by viewModels<AuthViewModel>()
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    val binding = ActivityAuthBinding.inflate(layoutInflater)
-    setContentView(binding.root)
-    supportFragmentManager.commit {
-      replace(R.id.fragmentContainer, AuthFragment.newInstance())
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val binding = ActivityAuthBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        supportFragmentManager.commit {
+            replace(R.id.fragmentContainer, AuthFragment.newInstance())
+        }
+
+        viewModel.showMain.observe(this) {
+            startActivity(Intent(this, MainActivity::class.java))
+            overridePendingTransition(R.anim.auth_main_enter, R.anim.auth_main_exit)
+        }
+        viewModel.showLogin.observe(this) {
+            showLogin()
+        }
+        viewModel.showSignUp.observe(this) {
+            showSignup()
+        }
     }
 
-    viewModel.showMain.observe(this) {
-      startActivity(Intent(this, MainActivity::class.java))
-      overridePendingTransition(R.anim.auth_main_enter, R.anim.auth_main_exit)
+    private fun showLogin() {
+        supportFragmentManager.commit {
+            replace(R.id.fragmentContainer, LoginFragment.newInstance())
+            val sharedView = findViewById<View>(R.id.logo)
+            addSharedElement(sharedView, sharedView.transitionName)
+            addToBackStack(null)
+        }
     }
-    viewModel.showLogin.observe(this) {
-      showLogin()
-    }
-    viewModel.showSignUp.observe(this) {
-      showSignup()
-    }
-  }
 
-  private fun showLogin() {
-    supportFragmentManager.commit {
-      replace(R.id.fragmentContainer, LoginFragment.newInstance())
-      addToBackStack(null)
+    private fun showSignup() {
+        supportFragmentManager.commit {
+            replace(R.id.fragmentContainer, SignupFragment.newInstance())
+            val sharedView = findViewById<View>(R.id.logo)
+            addSharedElement(sharedView, sharedView.transitionName)
+            addToBackStack(null)
+        }
     }
-  }
-
-  private fun showSignup() {
-    supportFragmentManager.commit {
-      replace(R.id.fragmentContainer, SignupFragment.newInstance())
-      addToBackStack(null)
-    }
-  }
 }
