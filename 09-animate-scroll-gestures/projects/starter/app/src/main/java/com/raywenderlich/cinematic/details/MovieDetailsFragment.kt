@@ -39,108 +39,120 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.view.doOnLayout
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
-import coil.transform.BlurTransformation
+import com.google.android.material.appbar.AppBarLayout
 import com.raywenderlich.cinematic.R
 import com.raywenderlich.cinematic.databinding.FragmentDetailsBinding
 import com.raywenderlich.cinematic.model.Movie
 import com.raywenderlich.cinematic.util.Constants.IMAGE_BASE
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
-import kotlin.properties.Delegates
+import kotlin.math.abs
 
 class MovieDetailsFragment : Fragment(R.layout.fragment_details) {
 
-  private var _binding: FragmentDetailsBinding? = null
-  private val binding get() = _binding!!
+    private var _binding: FragmentDetailsBinding? = null
+    private val binding get() = _binding!!
 
-  private val args: MovieDetailsFragmentArgs by navArgs()
-  private val viewModel: MovieDetailsViewModel by viewModel()
+    private val args: MovieDetailsFragmentArgs by navArgs()
+    private val viewModel: MovieDetailsViewModel by viewModel()
 
-  private val castAdapter: CastAdapter by inject()
+    private val castAdapter: CastAdapter by inject()
 
-  private var originalWidth by Delegates.notNull<Int>()
-  private var originalHeight by Delegates.notNull<Int>()
+    private var originalWidth: Int = 0
+    private var originalHeight: Int = 0
 
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?,
-  ): View {
-    _binding = FragmentDetailsBinding.inflate(inflater, container, false)
-    return binding.root
-  }
-
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    binding.castList.apply {
-      adapter = castAdapter
-      layoutManager =
-        LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        _binding = FragmentDetailsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    args.movieId.also {
-      viewModel.getMovieDetails(it)
-      viewModel.getCast(it)
-    }
-    attachObservers()
-    setupScrolling()
-  }
-
-  private fun setupScrolling() {
-
-  }
-
-  private fun attachObservers() {
-    binding.posterContainer.doOnLayout {
-      this.originalHeight = binding.poster.height
-      this.originalWidth = binding.poster.width
-    }
-
-    viewModel.movie.observe(viewLifecycleOwner, { movie ->
-      renderUi(movie)
-    })
-
-    viewModel.cast.observe(viewLifecycleOwner, { cast ->
-      castAdapter.submitList(cast)
-    })
-  }
-
-  private fun renderUi(movie: Movie) {
-    binding.backdrop.load(IMAGE_BASE + movie.backdropPath) {
-      crossfade(true)
-      transformations(BlurTransformation(requireContext()))
-    }
-    binding.poster.load(IMAGE_BASE + movie.posterPath) {
-      crossfade(true)
-    }
-
-    binding.title.text = movie.title
-    binding.summary.text = movie.overview
-    binding.ratingValue.text = movie.rating.toString()
-    binding.movieRating.rating = movie.rating
-
-    binding.addToFavorites.apply {
-      icon = if (movie.isFavorite) {
-        getDrawable(requireContext(), R.drawable.ic_baseline_favorite_24)
-      } else {
-        getDrawable(requireContext(), R.drawable.ic_baseline_favorite_border_24)
-      }
-      text = if (movie.isFavorite) {
-        getString(R.string.remove_from_favourites)
-      } else {
-        getString(R.string.add_to_favourites)
-      }
-      setOnClickListener {
-        if (movie.isFavorite) {
-          viewModel.unsetMovieAsFavorite(movie.id)
-        } else {
-          viewModel.setMovieAsFavorite(movie.id)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.castList.apply {
+            adapter = castAdapter
+            layoutManager =
+                LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         }
-      }
+
+        args.movieId.also {
+            viewModel.getMovieDetails(it)
+            viewModel.getCast(it)
+        }
+        attachObservers()
+        setupScrolling()
+
+        binding.posterContainer.doOnLayout {
+            originalWidth = it.width
+            originalHeight = it.height
+        }
     }
-  }
+
+    private fun setupScrolling() {
+        binding.appBar.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
+            val scrollRange = appBarLayout.totalScrollRange.toFloat()
+            val scrollPercent = abs(verticalOffset / scrollRange)
+            val scale = (1 + scrollPercent)
+
+            binding.posterContainer.updateLayoutParams {
+                this.width = (scale * originalWidth).toInt()
+                this.height = (scale * originalHeight).toInt()
+            }
+
+            binding.ratingContainer.alpha = scrollPercent
+        })
+    }
+
+    private fun attachObservers() {
+        viewModel.movie.observe(viewLifecycleOwner, { movie ->
+            renderUi(movie)
+        })
+
+        viewModel.cast.observe(viewLifecycleOwner, { cast ->
+            castAdapter.submitList(cast)
+        })
+    }
+
+    private fun renderUi(movie: Movie) {
+        binding.toolbar.title = movie.title
+
+        binding.backdrop.load(IMAGE_BASE + movie.backdropPath) {
+            crossfade(true)
+        }
+        binding.poster.load(IMAGE_BASE + movie.posterPath) {
+            crossfade(true)
+        }
+
+        binding.summary.text = movie.overview
+        binding.ratingValue.text = movie.rating.toString()
+        binding.movieRating.rating = movie.rating
+
+        binding.addToFavorites.apply {
+            icon = if (movie.isFavorite) {
+                getDrawable(requireContext(), R.drawable.ic_baseline_favorite_24)
+            } else {
+                getDrawable(requireContext(), R.drawable.ic_baseline_favorite_border_24)
+            }
+            text = if (movie.isFavorite) {
+                getString(R.string.remove_from_favourites)
+            } else {
+                getString(R.string.add_to_favourites)
+            }
+            setOnClickListener {
+                if (movie.isFavorite) {
+                    viewModel.unsetMovieAsFavorite(movie.id)
+                } else {
+                    viewModel.setMovieAsFavorite(movie.id)
+                }
+            }
+        }
+    }
 }
