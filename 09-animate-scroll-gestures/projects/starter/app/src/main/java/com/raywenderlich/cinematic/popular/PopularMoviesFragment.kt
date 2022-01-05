@@ -40,6 +40,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.raywenderlich.cinematic.MoviesAdapter
 import com.raywenderlich.cinematic.MoviesRecyclerAdapter
@@ -90,10 +91,20 @@ class PopularMoviesFragment : Fragment(R.layout.fragment_popular) {
       val itemTouchHelper = ItemTouchHelper(itemTouchCallback)
 
       itemTouchHelper.attachToRecyclerView(this)
+      addOnScrollListener(object: RecyclerView.OnScrollListener() {
+        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+          super.onScrollStateChanged(recyclerView, newState)
+          if (newState != RecyclerView.SCROLL_STATE_IDLE) {
+            binding.scrollUp.hide()
+          } else {
+             binding.scrollUp.show()
+          }
+        }
+      })
     }
 
     binding.scrollUp.setOnClickListener {
-
+      binding.popularMoviesList.smoothScrollToPosition(0)
     }
 
     viewModel.getPopularMovies()

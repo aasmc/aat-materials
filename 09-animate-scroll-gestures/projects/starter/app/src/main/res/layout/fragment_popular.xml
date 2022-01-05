@@ -27,7 +27,6 @@
     android:layout_margin="16dp"
     android:contentDescription="@string/scroll_up"
     android:src="@drawable/ic_baseline_keyboard_arrow_up_24"
-    android:visibility="gone"
     app:fabSize="normal" />
 
 </FrameLayout>
